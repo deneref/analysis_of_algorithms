@@ -121,7 +121,7 @@ func main(){
 
 	line:=conv(amount, wait)
 	<-wait
-	//get_log(line)
+	get_log(line)
 	_ = line
 	end := time.Now()
 	fmt.Printf("To make %d cakes conv took ", amount)
@@ -131,7 +131,7 @@ func main(){
 	line_1 := linear(amount)
 	end = time.Now()
 	_ =  line_1;
-	//get_log(line_1)
+	get_log(line_1)
 	fmt.Printf("To make %d cakes linear conv took ", amount)
 	fmt.Println(end.Sub(start))
 	
