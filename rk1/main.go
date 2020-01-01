@@ -7,6 +7,7 @@ import (
 	"bufio"
 	"strings"
 	"strconv"
+	"time"
 	)
 	
 func init_table(amount int) [](*list.List){
@@ -53,21 +54,25 @@ func read_file(name_file string, table [](*list.List), amount int){
 		}
 	}
 }
-func perebor(name_file string, amount int){
-	file, err := os.Open(name_file)
-	if err != nil{
-		fmt.Println(err)
-		os.Exit(1)
+		
+func estimate_time(name_file string, amount int){
+	tmp := make([]time.Duration, 20,20)
+	table := init_table(amount)
+	for i:=0; i<20; i++{
+		start := time.Now()
+		read_file(name_file,table, amount)
+		end:=time.Now()
+		tmp[i] = end.Sub(start)
 	}
-	defer file.Close()
-	reader := bufio.NewReader(file)
-	for {
-		str, err := reader.ReadString('\n')
+	var sum time.Duration
+	for i:=0; i<len(tmp);i++{
+		sum += tmp[i]
+	}
+	fmt.Print(sum/20)
+}
 	
 func main(){
 	amount := 10
-	table := init_table(amount)
-	read_file("data.txt",table, amount)
-	print_table(table)
+	estimate_time("data.txt", amount)
 	return
 }
