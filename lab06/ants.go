@@ -56,12 +56,14 @@ func new_env(file_name string) *env {
 			enviroment.pheromon[i][k] = 0.5
 		}
 	}
-	enviroment.alpha = 4.0
+	enviroment.alpha = 3.0
 	enviroment.betta = 6.0
 	enviroment.q = 1.0
-	enviroment.p = 0.5
+	enviroment.p = 1.5
 	return enviroment
 }
+
+//считывает граф из файла
 func get_weights(name_file string) [][]int{
 	answer:=make([][]int, 0)
 	file, err := os.Open(name_file)
@@ -77,6 +79,8 @@ func get_weights(name_file string) [][]int{
 			break}
 		str = strings.TrimSuffix(str, "\n")
 		str = strings.TrimSuffix(str, "\r")
+		str = strings.TrimRight(str, " ")
+		//fmt.Printf(str)
 		cur := strings.Split(str, " ")
 		new_line := make([]int, 0)
 		for _, i:= range cur{
@@ -91,6 +95,7 @@ func get_weights(name_file string) [][]int{
 	return answer
 }
 
+//считает вероятность выбора путей муравьем
 func (ant *ant)count_probapility() []float64{
 	res := make([]float64, 0);
 	var d float64;
@@ -110,6 +115,7 @@ func (ant *ant)count_probapility() []float64{
 	return res
 }
 
+//выбор пути с заданной вероятностью
 func choose_path(probab []float64) int{
 	var sum float64
 	for _, j := range probab{
@@ -128,6 +134,7 @@ func choose_path(probab []float64) int{
 	return -1
 }
 
+//обновление феромона после передвижения муравья
 func (ant *ant)renew_pheromon(){
 	var del_t float64
 	del_t = 0
@@ -145,6 +152,7 @@ func (ant *ant)renew_pheromon(){
 	}
 }
 
+//муравей передвигается по ребру
 func (ant *ant) go_path(path int){
 	for i, _ := range ant.visited{
 		ant.visited[i][ant.position] = 0
@@ -153,13 +161,12 @@ func (ant *ant) go_path(path int){
 	ant.position = path
 }	
 
+//запуск муравья 
 func (ant *ant) ant_go(){
 	for{
 	//ant.print_info()
 		prob := ant.count_probapility()
-		//fmt.Println("\nprob ", prob)
 		choosen_path := choose_path(prob)
-		//fmt.Println("chosen_path", choosen_path)
 		if choosen_path == -1{
 			break}
 		ant.go_path(choosen_path)
@@ -168,6 +175,7 @@ func (ant *ant) ant_go(){
 	}
 }
 
+//печать инфы о деятельности муравья
 func (ant *ant) print_info(){
 	fmt.Println("Ant pos: ", ant.position)
 	for i, _ := range ant.visited{
@@ -185,20 +193,86 @@ func (ant *ant) print_info(){
 	}
 }
 			
+//вычисление пути, пройденного муравьем
 func (ant *ant) get_distance()int{
 	var distance int
-	//fmt.Println(ant.env.weight)
-	//fmt.Println(ant.visited)
 	for i, j:= range ant.been_to{
 		for k, z := range j{
 			if z{
-				//fmt.Println(i," ", k," ", ant.env.weight[i][k])
 				distance += ant.env.weight[i][k]
 			}
 		}
 	}
 	return distance
 }
-			
+
+//запуск нескольких иттераций алгоритма
+func start (env *env, days int) []int{
+	shortest_dist := make([]int, len(env.weight))
+	for n := 0; n < days; n++{
+		for i:= 0; i< len(env.weight); i++{
+			ant := env.new_ant(i)
+			ant.ant_go()	
+			cur_dist := ant.get_distance()
+			if (shortest_dist[i] == 0) || (cur_dist < shortest_dist[i]){
+				shortest_dist[i] = cur_dist
+			}
+		}
+	}
+	return shortest_dist
+}
+
+//полный перебор графа
+func brute(file_name string) []int{
+	weight := get_weights(file_name)
+	path := make([]int, 0)
+	res := make([]int, len(weight))
+	//для каждой вершины графа
+	for k:=0; k<len(weight);k++{
+		ways := make([][]int, 0)
+		_ = go_route(k, weight, path, &ways)
+		sum := 1000
+		curr := 0
+		ind := 0
+		for i:=0; i<len(ways);i++{
+			curr = 0
+			for j:=0;j<len(ways[i])-1;j++{
+				curr+=weight[ways[i][j]][ways[i][j+1]]
+			}
+			if curr < sum{
+				sum = curr
+				ind = i
+			}
+		}
+		res[k] = sum
+		//fmt.Println(k, ways[ind])
+		ind = 0
+		_= ind
+	}
+	return res
+}
+func contains(s []int, e int) bool {
+    for _, a := range s {
+        if a == e {
+            return true
+        }
+    }
+    return false
+}
+
+//найти все возможные пути из данной точки
+func go_route(pos int, weight [][]int, path[]int, routes *[][]int)[]int{
+	path = append(path, pos)
+	if len(path) < len(weight){
+		for i:=0; i < len(weight); i++{
+			if !(contains(path, i)){
+				_ = go_route(i, weight,path, routes)
+			}
+		}
+	}else{
+	*routes = append(*routes, path)
+	}
+	return path
+}
 			
 			

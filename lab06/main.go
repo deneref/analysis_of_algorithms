@@ -6,16 +6,14 @@ import (
 func main(){
 	env := new_env("data.txt")
 	
-	for i:= 0; i< len(env.weight); i++{
-		ant := env.new_ant(i)
-		ant.ant_go()
-		fmt.Println(i, " ", ant.get_distance())
+	shortest := start(env, 100)
+	fmt.Printf("Ants algorithm\n")
+	for i, j := range shortest{
+		fmt.Printf("from %d shortest way is %d\n", i, j)
 	}
-	
-	
-	/*
-	for _, j := range env.pheromon{
-		fmt.Print(j, "\n")
+	fmt.Printf("Brute force\n")
+	short:=brute("data.txt")
+	for i, j:= range short{
+		fmt.Printf("from %d shortest way is %d\n", i, j)
 	}
-	*/
 }
