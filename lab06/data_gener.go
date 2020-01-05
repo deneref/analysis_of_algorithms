@@ -4,10 +4,8 @@ import (
 	"os";  "math/rand"
 	)
 
-func main(){
-	n := 5
-	
-	file, err := os.OpenFile("data.txt", os.O_RDWR|os.O_CREATE, 0755)
+func gener_file(n int){
+	file, err := os.OpenFile("data.txt", os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil{
 		fmt.Println(err)
 		os.Exit(1)
@@ -29,3 +27,8 @@ func main(){
 	file.Close()
 	return
 }
+/*
+func main(){
+	gener_file(5)
+}
+*/

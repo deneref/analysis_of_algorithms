@@ -57,9 +57,9 @@ func new_env(file_name string) *env {
 		}
 	}
 	enviroment.alpha = 3.0
-	enviroment.betta = 6.0
-	enviroment.q = 1.0
-	enviroment.p = 1.5
+	enviroment.betta = 7.0
+	enviroment.q = 20.0
+	enviroment.p = 0.6
 	return enviroment
 }
 
@@ -207,7 +207,7 @@ func (ant *ant) get_distance()int{
 }
 
 //запуск нескольких иттераций алгоритма
-func start (env *env, days int) []int{
+func start_ants (env *env, days int) []int{
 	shortest_dist := make([]int, len(env.weight))
 	for n := 0; n < days; n++{
 		for i:= 0; i< len(env.weight); i++{
@@ -274,5 +274,5 @@ func go_route(pos int, weight [][]int, path[]int, routes *[][]int)[]int{
 	}
 	return path
 }
-			
+		
 			

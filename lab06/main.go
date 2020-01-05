@@ -6,7 +6,7 @@ import (
 func main(){
 	env := new_env("data.txt")
 	
-	shortest := start(env, 100)
+	shortest := start_ants(env, 100)
 	fmt.Printf("Ants algorithm\n")
 	for i, j := range shortest{
 		fmt.Printf("from %d shortest way is %d\n", i, j)
