@@ -9,6 +9,10 @@ import (
 )
 
 func std(str, sub string) int{
+	if len(sub) > len(str) || len(sub)== 0 || len(str) == 0{
+		return -1
+	}
+	
 	flag := true
 	for i:=0;i<len(str);i++{
 		flag = true
@@ -42,6 +46,10 @@ func get_preph(str string) []int{
 }
 
 func KMP(str, sub string) int{
+	if len(sub) > len(str) || len(sub)== 0 || len(str) == 0{
+		return -1
+	}
+	
 	tmp := []string{sub, str}
 	str = strings.Join(tmp, "@")
 	pr := get_preph(str)
@@ -69,9 +77,34 @@ func get_table(substring string) map[rune]int {
 }
 
 func BM(str, sub string) int{
+	if len(sub) > len(str) || len(sub)== 0 || len(str) == 0{
+		return -1
+	}
 	table := get_table(sub)
-	fmt.Println(table)
-	return -1
+	strrunes := []rune(str)
+	subrunes := []rune(sub)
+	str_l := utf8.RuneCountInString(str)
+	sub_l := utf8.RuneCountInString(sub)
+	i:=sub_l-1
+	j,k:=i,i
+	for (j>=0 && i<=str_l-1){
+		j = sub_l-1
+		k = i
+		for(j>=0 && (table[strrunes[k]] == table[subrunes[j]])){
+			k--
+			j--
+		}
+		if _,ok := table[strrunes[i]]; !ok{
+			i+= sub_l
+		}else{
+		i+=table[strrunes[i]]
+		}
+	}
+	if k>= str_l - sub_l{
+		return -1
+	} else {
+		return k+1
+	}
 }
 
 func call_func(f func(str, sub string) int){
@@ -94,7 +127,7 @@ func call_func(f func(str, sub string) int){
 func main(){
 	reader := bufio.NewReader(os.Stdin)
 	for{
-		fmt.Println("1. Стандартный алгоритм\n2. Бойер-Мур\n3. Кнут-Моррис-Пратт\n0. Выход")
+		fmt.Println("1. Стандартный алгоритм\n2. Бойер-Мур\n3. Кнут-Моррис-Пратт\n4. Лог времени\n0. Выход")
 		answer, _ := reader.ReadString('\n')
 		/*
 		res, err := strconv.Atoi(answer)
@@ -109,6 +142,8 @@ func main(){
 				call_func(BM)
 			case "3\r\n":
 				call_func(KMP)
+			case "4\r\n":
+				get_log()
 			case "0\r\n":
 				os.Exit(0)
 		}

@@ -206,9 +206,21 @@ escapeinside={\#*}{*)}   % если нужно добавить коммента
 \textbf{Выходные данные} - программа возвращает индекс первого вхождения подстроки в строку, если вхождения не было возвращается -1.
 
 \section{Схемы алгоритмов}
-В данном разделе будут приведены схемы алгоритмов для решения задачи коммивояжора:
-полный пребор(Рис.\ref{fig:f_p}) и муравьиный (Рис. \ref{fig:ant})\\
-\newpage
+В данном разделе будут приведены схемы алгоритмов для решения задачи поиска подстроки в строке:
+Бойера-Мура(Рис.\ref{fig:BM}) и Кнута-Морриса-Пратта (Рис. \ref{fig:KMP})\\
+\begin{figure}[!htbp]
+	\centering
+	\includegraphics[width=1.1\linewidth]{bm_matrix_easy_graphml.png}
+	\caption{Схема алгоритма Бойера-Мура}
+	\label{fig:BM}
+\end{figure}
+\begin{figure}[!htbp]
+	\centering
+	\includegraphics[width=1\linewidth]{kmp_graphml_graphml.png}
+	\caption{Схема алгоритма Кнута-Морриса-Пратта}
+	\label{fig:KMP}
+\end{figure}
+
 
 \section*{Вывод}
 \addcontentsline{toc}{section}{Вывод}
@@ -220,121 +232,127 @@ escapeinside={\#*}{*)}   % если нужно добавить коммента
 \section{Выбор ЯП}
 В качестве языка программирования был выбран golang.
 Время работы алгоритмов было замерено с помощью time. 
+\section{Описание структуры ПО}
+В данном разделе будет рассмотрена структура ПО (Рис. \ref{fig:mpr})
+\begin{figure}[!htbp]
+	\centering
+	\includegraphics[width=1.1\linewidth]{lab07ram.png}
+	\caption{Функциональная схема поиска подстроки в строке (IDEF0 диаграмма 1 уровня)}
+	\label{fig:mpr}
+\end{figure}
+\section{Сведения о модулях программы}
+Программа состоит из:
+\begin{itemize}
+	\item main.go- главный файл программы, в котором располагается точка входа в программу.
+	\item estim.go - файл содержащий функции замера времени.
+\end{itemize}
+\section{Примеры работы}
+В данном разделе приведен пример работы программы (Рис. \ref{ris:example})
+\begin{figure}[h]
+	\centering{\includegraphics[scale=1.1]{example.png}} 
+	\caption{Пример работы программы}
+	\label{ris:example}
+\end{figure}
 \section{Листинг кода алгоритмов}
-В данном разделе будут приведены листинги кода полного перебора всех решений (Листинг \ref{brute}) и реализации муравьиного алгоритма (Листинг \ref{ants})
-\begin{lstlisting}[label=brute,caption = Перебор всех возможных вариантов, language = go]
+В данном разделе будут приведены листинги кода стандартного алгоритма поиска подстроки в строке (Листинг \ref{std}), алгоритма Бойера-Мура (Листинг \ref{BM}) и алгоритма Кнута-Морриса-Пратта (Листинг \ref{KMP})
+\begin{lstlisting}[label=std,caption = Стандартный алгоритм поиска подстроки в строке, language = go]
 
-func brute(file_name string) []int{
-	weight := get_weights(file_name)
-	path := make([]int, 0)
-	res := make([]int, len(weight))
-
-	for k:=0; k<len(weight);k++{
-		ways := make([][]int, 0)
-		_ = go_route(k, weight, path, &ways)
-		sum := 1000
-		curr := 0
-		ind := 0
-		for i:=0; i<len(ways);i++{
-			curr = 0
-			for j:=0;j<len(ways[i])-1;j++{
-				curr+=weight[ways[i][j]][ways[i][j+1]]
-			}
-			if curr < sum{
-				sum = curr
+func std(str, sub string) int{
+	if len(sub) > len(str) || len(sub)== 0 || len(str) == 0{
+		return -1
+	}
+	
+	flag := true
+	for i:=0;i<len(str);i++{
+		flag = true
+		if str[i] == sub[0]{
+			for j:=0;j<len(sub);j++{
+				if str[i+j] != sub[j]{
+					flag = false
+				}
+				if flag{
+					return i
+				}
 			}
 		}
-		res[k] = sum
 	}
-	return res
-}
-
-func contains(s []int, e int) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
-}
-
-
-func go_route(pos int, weight [][]int, path[]int, routes *[][]int)[]int{
-	path = append(path, pos)
-	if len(path) < len(weight){
-		for i:=0; i < len(weight); i++{
-			if !(contains(path, i)){
-				_ = go_route(i, weight,path, routes)
-			}
-		}
-		}else{
-			*routes = append(*routes, path)
-	}
-	return path
+	return -1
 }
 \end{lstlisting}
 
-\begin{lstlisting}[label=ants,caption = Муравьиный алгоритм, language = go]
-
-func start (env *env, days int) []int{
-	shortest_dist := make([]int, len(env.weight))
-	for n := 0; n < days; n++{
-		for i:= 0; i< len(env.weight); i++{
-			ant := env.new_ant(i)
-			ant.ant_go()
-			
-			cur_dist := ant.get_distance()
-			if (shortest_dist[i] == 0) || (cur_dist < shortest_dist[i]){
-				shortest_dist[i] = cur_dist
-			}
-		}
+\begin{lstlisting}[label=BM,caption = Алгоритм Бойера-Мура, language = go]
+func get_table(substring string) map[rune]int {
+	length := utf8.RuneCountInString(substring)
+	runes := []rune(substring)
+	
+	table := make(map[rune]int)
+	
+	for i := 0; i < length; i++ {
+		j := runes[i]
+		table[j] = length - i - 1
 	}
-	return shortest_dist
+	return table
 }
 
-func (ant *ant) ant_go(){
-	for{
-		prob := ant.count_probapility()
-		choosen_path := choose_path(prob)
-		if choosen_path == -1{
-			break}
-		ant.go_path(choosen_path)
-		ant.renew_pheromon()
+func BM(str, sub string) int{
+	if len(sub) > len(str) || len(sub)== 0 || len(str) == 0{
+		return -1
+	}
+	table := get_table(sub)
+	strrunes := []rune(str)
+	subrunes := []rune(sub)
+	str_l := utf8.RuneCountInString(str)
+	sub_l := utf8.RuneCountInString(sub)
+	i:=sub_l-1
+	j,k:=i,i
+	for (j>=0 && i<=str_l-1){
+		j = sub_l-1
+		k = i
+		for(j>=0 && (table[strrunes[k]] == table[subrunes[j]])){
+			k--
+			j--
+		}
+		if _,ok := table[strrunes[i]]; !ok{
+			i+= sub_l
+		}else{
+			i+=table[strrunes[i]]
+		}
+	}
+	if k>= str_l - sub_l{
+		return -1
+	} else {
+		return k+1
 	}
 }
-
-func (ant *ant)count_probapility() []float64{
-	res := make([]float64, 0);
-	var d float64;
-	var sum float64;
-	for i, lenght := range ant.visited[ant.position]{
-		if lenght != 0{
-			d = math.Pow((float64(1)/float64(lenght)), ant.env.alpha) * math.Pow(ant.env.pheromon[ant.position][i], ant.env.betta)
-			res = append(res, d)
-			sum += d
-		} else{
-			res = append(res, 0)
+\end{lstlisting}
+\begin{lstlisting}[label=KMP,caption = Алгоритм Кнута-Морриса-Пратта, language = go]
+func get_preph(str string) []int{
+	res := make([]int, len(str))
+	for i:= 1; i<len(str);i++{
+		j := res[i-1]
+		for (j>0 && str[i] != str[j]){
+			j = res[j-1]
 		}
+		if (str[i] == str[j]){
+			j++
 		}
-		for _, lenght := range res{
-			lenght = lenght / sum
+		res[i] = j
 	}
 	return res
 }
 
-func choose_path(probab []float64) int{
-	var sum float64
-	for _, j := range probab{
-		sum += j
+func KMP(str, sub string) int{
+	if len(sub) > len(str) || len(sub)== 0 || len(str) == 0{
+		return -1
 	}
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	random_fl := r.Float64() * sum
-	sum = 0
-	for i , j := range probab{
-		if random_fl > sum && random_fl<sum+j{
-			return i
-		} else{
-		sum+=j
+	
+	tmp := []string{sub, str}
+	str = strings.Join(tmp, "@")
+	pr := get_preph(str)
+	len_sub := len(sub)
+	for i:=len_sub+1; i<len(str);i++{
+		if pr[i] == len_sub{
+			return i-2*len_sub
 		}
 	}
 	return -1
@@ -344,38 +362,11 @@ func choose_path(probab []float64) int{
 \addcontentsline{toc}{section}{Вывод}
 В данном разделе были рассмотрены основные сведения о модулях программы и листинг кода алгоритмов.
 
-\chapter{Исследовательская часть}
-В даннном разделе будет проведен сравнительный временной анализ алгоритмов и рассмотрена параметризация муравьиного алгоритма. Замеры времени были произведены на: Intel Core i5-6200U.
-\chapter{Исследование зависимости времени работы алгоритмов от размера графа}
-В данном разделе будет приведены результаты сравнения времени работы реализованных алгоритмов в зависимоти от размера матрицы смежности (Рис. \ref{plot:time}). Время измерено в миллисекундах.
-\begin{figure}[!h]
-	\begin{tikzpicture}[thick, scale=1.4]
-	\begin{axis}[
-	axis lines = left,
-	xlabel = Количество вершин,
-	ylabel = Время(миллисекунды),
-	legend pos=north west,
-	ymajorgrids=true
-	]
-	\addplot[color=red] table[x index=0, y index=1] {timeBrute.dat}; 
-	\addplot[color=green] table[x index=0, y index=1] {timeAnts.dat};
-	
-	\addlegendentry{Полный перебор}
-	\addlegendentry{Муравьиный алгоритм}
-	\end{axis}
-	\end{tikzpicture}
-	\caption{Сравнение параллельного и обычного алгоритмов} \label{plot:time}
-\end{figure}
-\par
-
-\chapter{Выводы исследовательского раздела}
-Была исследована зависимоть времени работы реализованных алгоритмов от размера матрицы смежности графа. По результатам эксперимента на малых размерах графа полный перебор значительно выигрывает муравьиных алгоритм в скорости, однако на размера графа больше 8 сложность полного перебора растет очень быстро, а так как муравьиный алгоритм обладает полиноминальной сложностью, он работает быстрее перебора.
 
 \chapter*{Заключение}
 \addcontentsline{toc}{chapter}{Заключение}
-В ходе лабораторной работы я изучила возможности применения и реализовала алгоритм полного перебора и муравьиный алгоритм. 
+Были реализованы и изучены основные существующие алгоритмы поиска подстроки в строке - стандартный тривиальный алгоритм, алгоритм Бойера-Мура и алгоритм Кнута-Морриса-Пратта.
 
-Временной анализ показал, что неэффективно использовать полный перебор на графе размера больше 8.
 
 \addcontentsline{toc}{chapter}{Список литературы}
 \begin{thebibliography}{3}
