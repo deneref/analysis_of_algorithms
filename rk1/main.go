@@ -3,33 +3,32 @@ import (
 	"fmt"
 	"os"
 	"io"
-	"container/list"
 	"bufio"
 	"strings"
 	"strconv"
 	"time"
 	)
 	
-func init_table(amount int) [](*list.List){
-	table := make([](*list.List), amount, amount)
+func init_table(amount int) [][]int{
+	table := make([][]int, amount, amount)
 	for i:=0;i<len(table);i++{
-		table[i] = list.New()
+		table[i] = make([]int,0)
 	}
 	return table
 }
 
 
-func print_table(table [](*list.List)){
-	for i:=0; i<len(table);i++{
+func print_table(table [][]int){
+	for i, _ := range table{
 		fmt.Printf("\n %d ", i)
-		for tmp:=table[i].Front(); tmp != nil; tmp = tmp.Next(){
-			fmt.Print(tmp.Value)
+		for _, j := range table[i]{
+			fmt.Print(j)
 			fmt.Print(" ")
 		}
 	}
 }
 
-func read_file(name_file string, table [](*list.List), amount int){
+func read_file(name_file string, table [][]int, amount int){
 	file, err := os.Open(name_file)
 	if err != nil{
 		fmt.Println(err)
@@ -44,13 +43,13 @@ func read_file(name_file string, table [](*list.List), amount int){
 		res := strings.Split(str, " ")
 		article_id, err := strconv.Atoi(res[1]); person_id, err:= strconv.Atoi(res[0])
 		fl := true
-		for tmp:=table[article_id].Front(); tmp != nil; tmp = tmp.Next(){
-			if tmp.Value == person_id{
+		for _, j:=range table[article_id]{
+			if j == person_id{
 				fl = false
 				break}
 		}
 		if fl{
-			table[article_id].PushBack(person_id)
+			table[article_id] = append(table[article_id], person_id)
 		}
 	}
 }

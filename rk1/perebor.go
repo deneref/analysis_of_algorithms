@@ -29,7 +29,7 @@ func read_file(name_file string) ([]int, []int) {
 	}
 	return ids_person, ids_entity
 }
-func get_articles(ids_person, ids_entity []int, amount int) [][]int{
+func get_articles_hash(ids_person, ids_entity []int, amount int) [][]int{
 	articles := make([][]int, amount, amount)
 	for i:=0; i<amount; i++{
 		articles[i] = make([]int, 0)
@@ -50,6 +50,21 @@ func get_articles(ids_person, ids_entity []int, amount int) [][]int{
 	}
 	return articles
 } 
+
+func get_articles_brute(ids_person, ids_entity []int, amount int) [][]int{
+	articles := make([][]int, 0)
+	for i:=0; i<len(ids_person); i++{
+		tmp := make([]int, 0)
+		tmp = append(tmp, 0)
+		for j:=0; j<len(ids_person); j++{
+			if ids_entity[j] == ids_entity[j]{
+				tmp = append(tmp, j)
+			}		
+		}
+		articles = append(articles, tmp)
+	}
+	return articles
+}
 func print_articles(articles [][]int){
 	for i:=0; i<len(articles);i++{
 		fmt.Print(i, " ")
@@ -63,16 +78,23 @@ func estimate_time(ids_person, ids_entity []int, amount int){
 	tmp := make([]time.Duration, 20,20)
 	for i:=0; i<20; i++{
 		start := time.Now()
-		articles:=get_articles(ids_person, ids_entity, amount)
+		articles:=get_articles_hash(ids_person, ids_entity, amount)
 		end:=time.Now()
 		tmp[i] = end.Sub(start)
+		
 		_ = articles
 	}
+	start := time.Now()
+	articles:=get_articles_brute(ids_person, ids_entity, amount)
+	end:=time.Now()
+	sum1 := end.Sub(start)
+	_ = articles
 	var sum time.Duration
 	for i:=0; i<len(tmp);i++{
 		sum += tmp[i]
 	}
-	fmt.Print(sum/20)
+	fmt.Println("hash ", sum/20)
+	fmt.Println("brute ", sum1)
 }
 func main(){
 	amount := 10
