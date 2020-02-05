@@ -148,6 +148,9 @@ func (ant *ant)renew_pheromon(){
 				}
 				ant.env.pheromon[k][i] = (1-ant.env.p) * (float64(j) + del_t)
 			}
+			if ant.env.pheromon[k][i] <= 0{
+				ant.env.pheromon[k][i] = 0.1
+			}
 		}
 	}
 }

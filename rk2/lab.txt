@@ -9,8 +9,8 @@ func standart(mtr1, mtr2 *mtr) *mtr{
 	col2 := mtr2.cols
 	
 	res := new_mtr(row1, col2)
-	for i:=0;i<row1;i++{
-		for j:=0;j<col1;j++{
+        afor i:=0;i<row1;i++{
+                 for j:=0;j<col1;j++{
 			for k:=0;k<col2;k++{
 				res.buff[i][j] += mtr1.buff[i][k]*mtr2.buff[k][j]
 				}

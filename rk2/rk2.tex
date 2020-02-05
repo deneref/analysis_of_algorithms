@@ -39,6 +39,9 @@ escapeinside={\#*}{*)}   % если нужно добавить коммента
 \usetikzlibrary{datavisualization}
 \usetikzlibrary{datavisualization.formats.functions}
 
+\usepackage{geometry}
+\geometry{verbose, a4paper,tmargin=2cm, bmargin=2cm, rmargin=1.5cm, lmargin = 3cm}
+
 \usepackage{graphicx}
 \graphicspath{{src/}}
 \DeclareGraphicsExtensions{.pdf,.png,.jpg}
@@ -108,8 +111,14 @@ escapeinside={\#*}{*)}   % если нужно добавить коммента
 \end{itemize}
 \begin{itemize}
 	\item (сцепление, конкатенация) RS обозначает множество ${\alpha\beta | \alpha \in R  \& \beta \in S}$. Например, \{"boy", "girl"\}\{"friend", "cott"\} = \{"boyfriend", "girlfriend", "boycott", "girlcott"\}.
-	\item(дизъюнкция, чередование) $R|S$ обозначает объединение R и S. Например, \{"ab", "c"\}|\{"ab", "d", "ef"\} = \{"ab", "c", "d", "ef"\}.
-	\item(замыкание Клини, звезда Клини) R* обозначает минимальное надмножество множества R, которое содержит $\epsilon$ и замкнуто относительно конкатенации. Это есть множество всех строк, полученных конкатенацией нуля или более строк из R. Например, \{"Run", "Forrest"\}* = \{$\epsilon$, "Run", "Forrest", "RunRun", "RunForrest", "ForrestRun", "ForrestForrest", "RunRunRun",
+	\item(дизъюнкция, чередование) $R|S$ обозначает объединение R и S.
+	
+	 Например, \{"ab", "c"\}|\{"ab", "d", "ef"\} = \{"ab", "c", "d", "ef"\}.
+	\item(замыкание Клини, звезда Клини) R* обозначает минимальное надмножество множества R, которое содержит $\epsilon$ и замкнуто относительно конкатенации. Это есть множество всех строк, полученных конкатенацией нуля или более строк из R.
+	
+	 Например, \{"Run", "Forrest"\}* = \{$\epsilon$, "Run", "Forrest", "RunRun", "RunForrest", "ForrestRun",
+	 
+	  "ForrestForrest", "RunRunRun",
 	
 	 "RunRunForrest", "RunForrestRun", \}.
 	\item Регулярные выражения, входящие в современные языки программирования (в частности, PCRE), имеют больше возможностей, чем то, что называется регулярными выражениями в теории формальных языков; в частности, в них есть нумерованные обратные ссылки. Это позволяет им разбирать строки, описываемые не только регулярными грамматиками, но и более сложными, в частности, контекстно-свободными грамматиками.
@@ -118,116 +127,137 @@ escapeinside={\#*}{*)}   % если нужно добавить коммента
 Были рассмотренны регулярныные выражения и их обоснование в теории формальных языков.
 
 \chapter{Конструкторская часть}
+\section{Требования к программе}
 \textbf{Требования к вводу:}
-На вход подаются две матрицы
-\newline
+\begin{itemize}
+	\item На вход подается код программы на языке golang в формате .txt;
+	\item количество вхождений цикла for в строке не больше 1.
+\end{itemize}
 \textbf{Требования к программе:}
 \begin{itemize}
-	\item корректное умножение двух матриц;
-	\item при матрицах неправильных размеров программа не должна аварийно завершаться.
+	\item Программа выводит все строки, в которых встречается вхождения условия цикла for;
+	\item программа должна выводить строки с циклом for даже если его условие некорректно.
 \end{itemize}
+\section{Матрица переходов}
+В этом разделе будет рассмотрена матрица переходов конечного автомата (Рис. \ref{fig:avt})
 
-
+\begin{figure}[h]
+	\centering{\includegraphics[scale = 1.3]{table.png}}
+	\caption{Таблица переходов состояний}
+	\label{fig:avt}
+\end{figure}
 
 \section{Вывод}
-В данном разделе была рассмотрена схема алгоритма Винограда и способ ее распараллеливания.
+В данном разделе была рассмотрена матрица переходов реализованного автомата и требования к работе программы.
 
 \chapter{Технологическая часть}
 \section{Выбор ЯП}
-Я выбрал в качестве языка программирования Golang, потому как он достаточно удобен, быстр и успешно использует концепции мультипоточного программирования.
-
-Время работы алгоритмов было замерено с помощью функции Now() из библиотеки time.
-
-\section{Описание структуры ПО}
-В данном разделе будет представленна функциональная схема программы (Рис. 3.1.)
-
-\section{Сведения о модулях программы}
-
+Я выбрал в качестве языка программирования Golang, потому как он достаточно удобен.
 
 \section{Листинг кода алгоритмов}
-В данном разделе будет представлен листинги кода алгоритма Винограда (3.1), распараллеленого алгоритма Винограда (3.2)
-\begin{lstlisting}[label=CodeStand,caption = Алгоритм Винограда]
-func winograd(mtr1, mtr2 *mtr) *mtr{
-	if mtr2.rows != mtr1.cols{
-		panic("Wrong size of matrix")
+В данном разделе будет представлен листинги кода поиска с помощью регулярных выражений (\ref{RegExp}), с помощью конечного автомата(\ref{Avt})
+\begin{lstlisting}[label=RegExp,caption = Использование регулярных выражений]
+func get_fors(name_file string) []string{
+	answer:=make([]string, 0)
+	for_pattern:="(for).*\\{+"
+	get_for, _ := regexp.Compile(for_pattern)
+	file, err := os.Open(name_file)
+	if err != nil{
+		fmt.Println(err)
+		os.Exit(1)
 	}
-	row1 := mtr1.rows; col1 := mtr1.cols
-	row2:= mtr2.rows; col2 := mtr2.cols
-
-	row_factor := make([]int, row1, row1)
-	col_factor := make([]int, col2, col2)
-
-	for i:=0; i<row1;i++{
-		for j:=0;j<col1 / 2;j++{
-			row_factor[i] += mtr1.buff[i][2*j] * mtr1.buff[i][2*j+1]
-	}}
-	
-	for i:=0; i<col2;i++{
-		for j:=0;j<row2 / 2;j++{
-			col_factor[i] += mtr2.buff[2*j][i]*mtr2.buff[2*j+1][i]
-	}}
-
-		answer := new_mtr(row1, col2)
-
-	for i:=0;i<row1;i++{
-		for j:=0;j<col2;j++{
-			answer.buff[i][j]+= - row_factor[i] - col_factor[j]
-			for k:=0;k<col1 / 2;k++{
-				answer.buff[i][j] += ((mtr1.buff[i][2 * k] + mtr2.buff[2 * k + 1][j]) * (mtr1.buff[i][2 * k + 1] + mtr2.buff[2 * k][j]))
-	}}}
-
-	if (row2 % 2) != 0{
-		for i:=0;i<row1;i++{
-			for j:=0;j<col2;j++{
-				answer.buff[i][j] += mtr1.buff[i][col1 - 1] * mtr2.buff[col1 - 1][j]
-	}}}
+	defer file.Close()
+	reader := bufio.NewReader(file)
+	for {
+		str, err := reader.ReadString('\n')
+		if err == io.EOF{
+		break}
+		if (get_for.MatchString(str)){
+			answer = append(answer, get_for.FindString(str))
+		}
+	}
 	return answer
 }
 \end{lstlisting}
 
-\begin{lstlisting}[label=winograd_mult,caption=Распараллеленый Алгоритм Винограда]
-func winograd_parallel(mtr1, mtr2 *mtr, threads int) *mtr{
-	if mtr2.rows != mtr1.cols{
-		panic("Wrong size of matrix")
-	}
-	row1 := mtr1.rows; col1 := mtr1.cols
-	row2:= mtr2.rows; col2 := mtr2.cols
+\begin{lstlisting}[label=Avt,caption=Использование конечного автомата]
+type avt struct {
+	state int
+	trans map[key]int
+}	
 
-	row_factor := make([]int, row1, row1)
-	col_factor := make([]int, col2, col2)
+type key struct{
+	symb byte
+	state int
+}
 
-	for i:=0; i<row1;i++{
-		for j:=0;j<col1 / 2;j++{
-			row_factor[i] += mtr1.buff[i][2*j] * mtr1.buff[i][2*j+1]
-	}}
-	for i:=0; i<col2;i++{
-		for j:=0;j<row2 / 2;j++{
-			col_factor[i] += mtr2.buff[2*j][i]*mtr2.buff[2*j+1][i]
-	}}
-	answer := new_mtr(row1, col2)
-	in := make(chan int); quit := make(chan bool)
-	mult := func(){
-		for{
-			select {
-				case i := <- in:
-					for j:=0;j<col2;j++{
-					answer.buff[i][j]+= - row_factor[i] - col_factor[j]
-					for k:=0;k<col1 / 2;k++{
-					answer.buff[i][j] += ((mtr1.buff[i][2 * k] + mtr2.buff[2 * k + 1][j]) * (mtr1.buff[i][2 * k + 1] + mtr2.buff[2 * k][j]))
-					}}
-			case <- quit:
-				return
+func new_avt() *avt{
+	avt := new(avt)
+	avt.state  = 0
+	avt.trans = make(map[key]int)
+	avt.trans[key{symb: byte('f'), state: 0}] = 1
+	avt.trans[key{symb: byte('f'), state: 1}] = 0
+	avt.trans[key{symb: byte('f'), state: 2}] = 0
+	avt.trans[key{symb: byte('f'), state: 3}] = 3
+	avt.trans[key{symb: byte('f'), state: 4}] = 0
+	
+	avt.trans[key{symb: byte('o'), state: 0}] = 0
+	avt.trans[key{symb: byte('o'), state: 1}] = 2
+	avt.trans[key{symb: byte('o'), state: 2}] = 0
+	avt.trans[key{symb: byte('o'), state: 3}] = 3
+	avt.trans[key{symb: byte('o'), state: 4}] = 0
+	
+	avt.trans[key{symb: byte('r'), state: 0}] = 0
+	avt.trans[key{symb: byte('r'), state: 1}] = 0
+	avt.trans[key{symb: byte('r'), state: 2}] = 3
+	avt.trans[key{symb: byte('r'), state: 3}] = 3
+	avt.trans[key{symb: byte('r'), state: 4}] = 0
+	
+	avt.trans[key{symb: byte('{'), state: 0}] = 0
+	avt.trans[key{symb: byte('{'), state: 1}] = 0
+	avt.trans[key{symb: byte('{'), state: 2}] = 0
+	avt.trans[key{symb: byte('{'), state: 3}] = 4
+	avt.trans[key{symb: byte('{'), state: 4}] = 0
+	
+	return avt
+}
+func (avt *avt) change_state(char byte){
+	key := key{char, avt.state}
+	if st, ok := avt.trans[key]; ok{
+		avt.state = st
+	}else{
+		if avt.state == 3{
+			if char ==  byte('\n'){
+				avt.state = 0
+			}else{
+				avt.state = 3
 			}
+		}else{
+			avt.state = 0
+	}
+	}
+}
+func get_fors(name_file string) []string{
+	answer:=make([]string, 0)
+	file, err := os.Open(name_file)
+	if err != nil{
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	defer file.Close()
+	reader := bufio.NewReader(file)
+	for {
+		str, err := reader.ReadString('\n')
+		str = strings.TrimSuffix(str, "\r\n")
+		avt := new_avt()
+		if err == io.EOF{
+		break}
+		for _, j := range str{
+			avt.change_state(byte(j))
 		}
-	}
-	for i:=0;i<threads;i++{
-		go mult()
-	}
-	for i:=0;i<mtr1.rows;i++{
-		in <- i
-	}
-	for i:= 0 ; i<threads; i++{
-		quit<-true
+		if avt.state == 4{
+			answer = append(answer, str)
+		}
 	}
 	return answer
 }
@@ -240,7 +270,7 @@ func winograd_parallel(mtr1, mtr2 *mtr, threads int) *mtr{
 
 \chapter*{Заключение}
 \addcontentsline{toc}{chapter}{Заключение}
-В ходе лабораторной работы были изучены возможности регулярных выражений.
+В ходе лабораторной работы были изучены возможности регулярных выражений. Был реализован алгоритм поиска вхождений подстроки при помощи регулярных выражений.
 
 
 \addcontentsline{toc}{chapter}{Список литературы}

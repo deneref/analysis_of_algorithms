@@ -1,0 +1,2 @@
+https://hh.ru/employer/tests/constructor?testGuild=3FA6C269-7A53-D4BD-2DB0-D671411AEB4F&uc=false
+testGuild=2

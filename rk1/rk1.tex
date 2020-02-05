@@ -188,7 +188,7 @@ func get_articles_brute(ids_person, ids_entity []int, amount int) [][]int{
 }
 \end{lstlisting}
 
-\begin{lstlisting}[label=hash,caption = Муравьиный алгоритм, language = go]
+\begin{lstlisting}[label=hash,caption = Реализованный алгоритм, language = go]
 
 func get_articles_hash(ids_person, ids_entity []int, amount int) [][]int{
 	articles := make([][]int, amount, amount)
@@ -219,14 +219,8 @@ func get_articles_hash(ids_person, ids_entity []int, amount int) [][]int{
 
 \chapter{Исследовательская часть}
 В даннном разделе будет проведен сравнительный временной анализ алгоритмов (Рис. \ref{plot:time}). Замеры времени были произведены на: Intel Core i5-6200U.
-\section{Примеры работы}
-В данном разделе приведен пример работы программы (Рис. \ref{ris:example})
-\begin{figure}[h]
-	\centering{\includegraphics[scale=1.5]{example.png}} 
-	\caption{Пример работы программы}
-	\label{ris:example}
-\end{figure}
-\section{Исследование зависимости времени работы алгоритмов от размера графа}
+
+\section{Исследование зависимости времени работы алгоритмов от размера входных данных}
 В данном разделе будет приведены результаты сравнения времени работы реализованных алгоритмов в зависимоти от размера Входного файла (Рис. \ref{plot:time}). Время измерено в миллисекундах.
 \begin{figure}[!h]
 	\begin{tikzpicture}[thick, scale=1.4]
